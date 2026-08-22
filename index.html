@@ -17,19 +17,10 @@
       theme: {
         extend: {
           fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
-          colors: {
-            pusmendik: {
-              400: '#3b82f6',
-              500: '#1d6fa5',
-              600: '#1a5f9a',
-              700: '#164e7d',
-              800: '#113e65',
-              900: '#0c2e4a'
-            }
-          }
+          colors: { pusmendik: { 50: '#F0F7FF', 500: '#1d6fa5', 600: '#175481', 700: '#113e65', 800: '#002B55', 900: '#001F3F' } }
         }
       }
-    }
+    };
   </script>
 
   <style>
@@ -118,7 +109,7 @@
         </div>
       </div>
 
-      <!-- Right Header Actions: Live Clock, Exam Timer, Admin Toggle -->
+      <!-- Right Header Actions: Live Clock & Admin Toggle -->
       <div class="flex items-center gap-3">
         <!-- Live Clock Badge -->
         <div id="live-clock-badge" class="bg-black/30 backdrop-blur-md border border-white/20 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 text-white shadow-sm">
@@ -127,12 +118,6 @@
           <span class="text-amber-300">|</span>
           <i class="fa-solid fa-clock text-amber-300"></i>
           <span id="clock-time-text" class="font-mono">00:00:00</span>
-        </div>
-
-        <!-- Timer Badge (Hidden during Login & Admin) -->
-        <div id="exam-timer-badge" class="hidden bg-rose-600 border border-rose-400 text-white px-3.5 py-1.5 rounded-xl font-mono font-black text-xs flex items-center gap-2 shadow-md animate-pulse">
-          <i class="fa-solid fa-hourglass-half"></i>
-          <span id="timer-display">60:00</span>
         </div>
 
         <!-- Admin Login Button Icon -->
@@ -276,25 +261,27 @@
             </div>
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
               <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-chart-line"></i></div>
-              <div><p class="text-xs font-bold text-slate-500">Rata-Rata Nilai</p><h3 class="text-2xl font-black text-slate-800" id="stat-rata">0.0</h3></div>
+              <div><p class="text-xs font-bold text-slate-500">Rata-Rata Nilai</p><h3 class="text-2xl font-black text-slate-800" id="stat-rata">0.00</h3></div>
             </div>
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
               <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-trophy"></i></div>
-              <div><p class="text-xs font-bold text-slate-500">Nilai Tertinggi</p><h3 class="text-2xl font-black text-slate-800" id="stat-max">0</h3></div>
+              <div><p class="text-xs font-bold text-slate-500">Nilai Tertinggi</p><h3 class="text-2xl font-black text-slate-800" id="stat-max">0.00</h3></div>
             </div>
           </div>
 
-          <!-- Results Table -->
+          <!-- Results Table with Benar, Salah, Nilai Akhir 2-Desimal, and Peringkat -->
           <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-black">
+                    <th class="p-3.5 text-center">Peringkat</th>
                     <th class="p-3.5">Waktu Submit</th>
                     <th class="p-3.5">NISN</th>
                     <th class="p-3.5">Nama Siswa</th>
                     <th class="p-3.5">Kelas & Mapel</th>
-                    <th class="p-3.5 text-center">Jumlah Benar</th>
+                    <th class="p-3.5 text-center text-emerald-700">Benar</th>
+                    <th class="p-3.5 text-center text-rose-700">Salah</th>
                     <th class="p-3.5 text-center">Nilai Akhir</th>
                   </tr>
                 </thead>
@@ -494,7 +481,45 @@
       </div>
     </section>
 
-    <section id="exam-screen" class="hidden w-full max-w-7xl mx-auto my-auto p-3 md:p-6 no-print">
+    <section id="exam-screen" class="hidden w-full max-w-7xl mx-auto my-auto p-3 md:p-6 no-print space-y-4">
+      
+      <!-- SUB-HEADER INFORMASI SISWA & WAKTU MUNDUR (DI BAWAH HEADER UTAMA) -->
+      <div id="student-exam-subbanner" class="bg-white border-2 border-pusmendik-500 rounded-2xl p-3.5 shadow-md flex flex-wrap items-center justify-between gap-3">
+        
+        <!-- Student Avatar & Profile Meta -->
+        <div class="flex items-center gap-3">
+          <div id="student-avatar-box" class="w-12 h-12 rounded-xl bg-gradient-to-tr from-pusmendik-700 to-sky-500 text-white flex items-center justify-center font-black text-lg border-2 border-white shadow shrink-0 uppercase">
+            <span id="student-avatar-initials">S</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 id="student-display-name" class="font-black text-slate-800 text-sm md:text-base leading-tight">Nama Siswa Peserta</h2>
+              <span id="student-display-kelas" class="text-[10px] font-black bg-blue-100 text-pusmendik-800 px-2 py-0.5 rounded-md">Kelas X</span>
+            </div>
+            <p id="student-display-nisn" class="text-xs font-mono text-slate-500 font-semibold mt-0.5">NISN: 0000000000</p>
+          </div>
+        </div>
+
+        <!-- Subject Being Tested -->
+        <div class="bg-sky-50 border border-sky-200 px-3.5 py-1.5 rounded-xl text-xs font-bold text-pusmendik-800 flex items-center gap-2">
+          <i class="fa-solid fa-book-bookmark text-sky-600"></i>
+          <div>
+            <span class="text-[10px] text-slate-400 block leading-none">Mata Pelajaran:</span>
+            <span id="student-display-mapel" class="font-extrabold text-slate-800">Literasi & Numerasi AKM</span>
+          </div>
+        </div>
+
+        <!-- Timer Waktu Mundur Lega di Sub-Header -->
+        <div class="bg-rose-600 border-2 border-rose-400 text-white px-4 py-2 rounded-xl font-mono font-black text-sm md:text-base flex items-center gap-2.5 shadow-md animate-pulse">
+          <i class="fa-solid fa-hourglass-half text-amber-300"></i>
+          <div>
+            <span class="text-[9px] block text-rose-100 leading-none font-sans uppercase font-bold">Sisa Waktu:</span>
+            <span id="timer-display">60:00</span>
+          </div>
+        </div>
+
+      </div>
+
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 relative">
         
         <!-- Palette Sidebar Drawer -->
@@ -568,12 +593,13 @@
         <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl border-4 border-emerald-50"><i class="fa-solid fa-award"></i></div>
         <div>
           <h2 class="text-xl font-black text-slate-800">Ujian Berhasil Diselesaikan!</h2>
+          <p id="result-mapel-text" class="text-xs font-bold text-pusmendik-700 bg-sky-50 inline-block px-3 py-1 rounded-full border border-sky-200 mt-1">Mata Pelajaran: -</p>
           <p class="text-xs text-slate-500 mt-1">Jawaban Anda telah aman direkam ke database server.</p>
         </div>
         <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl space-y-1">
           <span class="text-[10px] font-black uppercase text-slate-400">Nilai Akhir (Sistem Bobot AKM)</span>
-          <div id="result-score" class="text-5xl font-black text-pusmendik-800 py-1">0</div>
-          <p id="result-detail" class="text-xs font-bold text-emerald-700 bg-emerald-50 inline-block px-3 py-1 rounded-full border border-emerald-200">Jawaban Benar: 0 / 30 Soal</p>
+          <div id="result-score" class="text-5xl font-black text-pusmendik-800 py-1">0.00</div>
+          <p id="result-detail" class="text-xs font-bold text-emerald-700 bg-emerald-50 inline-block px-3 py-1 rounded-full border border-emerald-200">Jawaban Benar: 0 | Salah: 0</p>
         </div>
         <button onclick="resetToHome()" class="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white font-extrabold rounded-xl transition flex items-center justify-center gap-2 text-xs shadow">
           <i class="fa-solid fa-house"></i> Kembali ke Halaman Utama Login
@@ -598,7 +624,7 @@
     </div>
   </div>
 
-  <!-- Modal Printable PDF Laporan -->
+  <!-- Modal Printable PDF Laporan dengan Tanda Tangan Pengawas Rapi -->
   <div id="modal-pdf-laporan" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 md:p-6 overflow-y-auto">
     <div class="bg-slate-200 rounded-2xl max-w-4xl w-full p-4 space-y-4 max-h-[90vh] overflow-y-auto">
       
@@ -639,15 +665,16 @@
           </div>
         </div>
 
-        <!-- Heavy Bordered Table -->
+        <!-- Heavy Bordered Table with Rank, Benar, Salah, Nilai Akhir -->
         <table class="w-full text-left border-collapse text-xs font-sans border-2 border-slate-900 mb-8">
           <thead>
             <tr class="bg-slate-200 text-slate-900 uppercase font-black border-b-2 border-slate-900">
-              <th class="p-2 border border-slate-900 text-center w-10">No</th>
+              <th class="p-2 border border-slate-900 text-center w-12">Rank</th>
               <th class="p-2 border border-slate-900">NISN</th>
               <th class="p-2 border border-slate-900">Nama Siswa</th>
               <th class="p-2 border border-slate-900">Kelas & Mapel</th>
-              <th class="p-2 border border-slate-900 text-center">Jumlah Benar</th>
+              <th class="p-2 border border-slate-900 text-center text-emerald-800">Benar</th>
+              <th class="p-2 border border-slate-900 text-center text-rose-800">Salah</th>
               <th class="p-2 border border-slate-900 text-center">Nilai Akhir</th>
             </tr>
           </thead>
@@ -656,16 +683,16 @@
           </tbody>
         </table>
 
-        <!-- Signature Block -->
+        <!-- Signature Block without Parentheses (Rapi & Sejajar) -->
         <div class="flex justify-between items-end text-xs font-sans pt-6">
-          <div class="text-center w-48">
-            <p>&nbsp;</p>
+          <div class="text-center w-52">
             <p class="font-bold">Pengawas Ujian,</p>
             <div class="h-16"></div>
-            <p class="font-black border-b border-slate-800 pb-0.5">( ........................................ )</p>
+            <p class="font-bold border-b border-slate-800 pb-0.5">.................................................</p>
+            <p class="text-[10px] text-slate-500 mt-0.5">Tanda Tangan & Nama Terang</p>
           </div>
           <div class="text-center w-56">
-            <p><span id="pdf-kota-text">Bajawa</span>, <span id="pdf-signature-date">21 Agustus 2026</span></p>
+            <p><span id="pdf-kota-text">Bajawa</span>, <span id="pdf-signature-date">22 Agustus 2026</span></p>
             <p class="font-bold">Ketua Panitia Ujian CBT,</p>
             <div class="h-16"></div>
             <p id="pdf-panitia-name" class="font-black border-b border-slate-800 pb-0.5">YUSTINUS BARA, S.Pd</p>
@@ -681,9 +708,7 @@
     /* =======================================================================
        GLOBAL STATE VARIABLES & CONFIG
        ======================================================================= */
-    // KONFIGURASI UTAMA BACKEND GOOGLE APPS SCRIPT (GAS)
     const IS_PREVIEW = false;
-    // PASTE / TEMPELKAN URL DEPLOYMENT WEB APP GAS ANDA DI BAWAH INI:
     const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbx31WGmxntBk37uva_JiGNAAhmSoxMoleM5y31YU6fdexLXSOEASSKJBNMnJccSN4yuLQ/exec"; 
     
     let GAS_URL = (localStorage.getItem('cbt_gas_url') && localStorage.getItem('cbt_gas_url') !== "") 
@@ -698,7 +723,6 @@
     let timerSeconds = 3600;
     let activePackageQuestions = [];
     
-    // MJD Interactive Matching Line Variables & Distinct Color Palettes
     let selectedMjdLeft = null;
     const MJD_PAIR_COLORS = [
       { bg: 'bg-indigo-50', border: 'border-indigo-500', text: 'text-indigo-900', stroke: '#4f46e5', badge: 'bg-indigo-600', ring: 'ring-indigo-300' },
@@ -709,7 +733,6 @@
       { bg: 'bg-teal-50', border: 'border-teal-500', text: 'text-teal-900', stroke: '#0d9488', badge: 'bg-teal-600', ring: 'ring-teal-300' }
     ];
 
-    /* Master Data Repositories in LocalStorage */
     const defaultSiswa = [
       { nisn: "0012345678", nama: "ALEXIS GRACIA", kelas: "X" },
       { nisn: "0012345679", nama: "BERNADETTA SANJAYA", kelas: "XI" },
@@ -728,7 +751,6 @@
 
     function initApp() {
       try {
-        // Load Master Data
         if (!localStorage.getItem('cbt_master_siswa')) localStorage.setItem('cbt_master_siswa', JSON.stringify(defaultSiswa));
         if (!localStorage.getItem('cbt_master_kelas')) localStorage.setItem('cbt_master_kelas', JSON.stringify(defaultKelas));
         if (!localStorage.getItem('cbt_master_mapel')) localStorage.setItem('cbt_master_mapel', JSON.stringify(defaultMapel));
@@ -772,25 +794,21 @@
       const kelasList = JSON.parse(localStorage.getItem('cbt_master_kelas') || '[]');
       const mapelList = JSON.parse(localStorage.getItem('cbt_master_mapel') || '[]');
 
-      // Siswa Form Selects
       const sKelas = document.getElementById('siswa-kelas');
       const sMapel = document.getElementById('siswa-mapel');
       if (sKelas) sKelas.innerHTML = kelasList.map(k => `<option value="${k}">${k}</option>`).join('');
       if (sMapel) sMapel.innerHTML = mapelList.map(m => `<option value="${m}">${m}</option>`).join('');
 
-      // Filter Selects
       const fKelas = document.getElementById('filter-kelas');
       const fMapel = document.getElementById('filter-mapel');
       if (fKelas) fKelas.innerHTML = `<option value="">Semua Kelas</option>` + kelasList.map(k => `<option value="${k}">${k}</option>`).join('');
       if (fMapel) fMapel.innerHTML = `<option value="">Semua Mata Pelajaran</option>` + mapelList.map(m => `<option value="${m}">${m}</option>`).join('');
 
-      // AI Target Selects
       const aiK = document.getElementById('ai-target-kelas');
       const aiM = document.getElementById('ai-target-mapel');
       if (aiK) aiK.innerHTML = kelasList.map(k => `<option value="${k}">${k}</option>`).join('');
       if (aiM) aiM.innerHTML = mapelList.map(m => `<option value="${m}">${m}</option>`).join('');
 
-      // Bank Soal Filter Selects
       const bK = document.getElementById('bank-filter-kelas');
       const bM = document.getElementById('bank-filter-mapel');
       if (bK) bK.innerHTML = `<option value="">Semua Kelas</option>` + kelasList.map(k => `<option value="${k}">${k}</option>`).join('');
@@ -806,7 +824,6 @@
       if (headerName) headerName.innerText = name;
       if (headerLogo && logo) headerLogo.src = logo;
 
-      // Inputs in Admin Identitas Tab
       const idNama = document.getElementById('identitas-nama');
       const idNpsn = document.getElementById('identitas-npsn');
       const idKota = document.getElementById('identitas-kota');
@@ -818,7 +835,6 @@
       if(idPanitia) idPanitia.value = localStorage.getItem('cbt_school_panitia') || 'YUSTINUS BARA, S.Pd';
       if(idNip) idNip.value = localStorage.getItem('cbt_school_nip') || '19850412 201001 1 008';
 
-      // Load GAS URL Input
       const gasInput = document.getElementById('konfig-gas-url');
       if (gasInput) gasInput.value = GAS_URL;
     }
@@ -838,7 +854,6 @@
       localStorage.setItem('cbt_school_nip', nip);
       loadSchoolIdentity();
 
-      // Sinkronisasi otomatis ke Google Spreadsheet via GAS_URL
       if (GAS_URL && GAS_URL !== "" && GAS_URL !== "URL_DEPLOY_GAS_ANDA_DISINI") {
         fetch(GAS_URL, {
           method: 'POST',
@@ -901,7 +916,6 @@
         return;
       }
 
-      // Check Active Question Package
       const packages = JSON.parse(localStorage.getItem('cbt_question_packages') || '[]');
       const activePkg = packages.find(p => p.kelas === kelas && p.mapel === mapel && p.active === true);
 
@@ -915,9 +929,17 @@
       userAnswers = {};
       raguAnswers = {};
 
+      // Populate Sub-Header Information for Student Exam View
+      document.getElementById('student-display-name').innerText = nama;
+      document.getElementById('student-display-kelas').innerText = `Kelas ${kelas}`;
+      document.getElementById('student-display-nisn').innerText = `NISN: ${nisn}`;
+      document.getElementById('student-display-mapel').innerText = mapel;
+      
+      const initials = nama.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'S';
+      document.getElementById('student-avatar-initials').innerText = initials;
+
       document.getElementById('login-screen').classList.add('hidden');
       document.getElementById('btn-toggle-admin').classList.add('hidden');
-      document.getElementById('exam-timer-badge').classList.remove('hidden');
       document.getElementById('exam-screen').classList.remove('hidden');
 
       startTimer();
@@ -1042,7 +1064,6 @@
       const container = document.getElementById('options-container');
       const cAns = userAnswers[q.id] || {};
 
-      // Map right items to which left item matched them
       const rightToLeftMap = {};
       Object.keys(cAns).forEach(lIdx => {
         const rIdx = cAns[lIdx];
@@ -1053,7 +1074,6 @@
 
       let html = `<div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative" id="mjd-board">`;
       
-      // Left Column Items
       html += `<div class="space-y-3">`;
       q.leftItems.forEach((lItem, lIdx) => {
         const isSelected = selectedMjdLeft === lIdx;
@@ -1078,7 +1098,6 @@
       });
       html += `</div>`;
 
-      // Right Column Items
       html += `<div class="space-y-3">`;
       q.rightItems.forEach((rItem, rIdx) => {
         const matchedLIdx = rightToLeftMap[rIdx];
@@ -1116,7 +1135,6 @@
       }
       if (!userAnswers[qId]) userAnswers[qId] = {};
       
-      // Clear previous match if right item was already matched
       Object.keys(userAnswers[qId]).forEach(k => {
         if (userAnswers[qId][k] === rIdx) delete userAnswers[qId][k];
       });
@@ -1192,6 +1210,7 @@
       clearInterval(timerInterval);
 
       let score = 0, maxScore = 0, correct = 0;
+      const totalSoal = activePackageQuestions.length;
 
       activePackageQuestions.forEach(q => {
         const w = q.weight || 3;
@@ -1214,27 +1233,28 @@
         }
       });
 
-      const finalScore = Math.round((score / maxScore) * 100) || 0;
+      const finalScoreNum = maxScore > 0 ? (score / maxScore) * 100 : 0;
+      const finalScoreFormatted = finalScoreNum.toFixed(2);
+      const wrongCount = totalSoal - correct;
 
       document.getElementById('exam-screen').classList.add('hidden');
-      document.getElementById('exam-timer-badge').classList.add('hidden');
       document.getElementById('result-screen').classList.remove('hidden');
-      document.getElementById('result-score').innerText = finalScore;
-      document.getElementById('result-detail').innerText = `Jawaban Benar: ${correct} dari ${activePackageQuestions.length} Soal`;
+      document.getElementById('result-mapel-text').innerText = `Mata Pelajaran: ${currentUser.mapel}`;
+      document.getElementById('result-score').innerText = finalScoreFormatted;
+      document.getElementById('result-detail').innerText = `Jawaban Benar: ${correct} | Salah: ${wrongCount}`;
 
-      // Record Result Local
       const record = {
         waktu: new Date().toLocaleString('id-ID'),
         ...currentUser,
-        nilai: finalScore,
-        benar: correct
+        nilai: parseFloat(finalScoreFormatted),
+        benar: correct,
+        salah: wrongCount
       };
 
       let db = JSON.parse(localStorage.getItem('cbt_results_db') || '[]');
       db.push(record);
       localStorage.setItem('cbt_results_db', JSON.stringify(db));
 
-      // Post to GAS Backend
       if (GAS_URL && GAS_URL !== "" && GAS_URL !== "URL_DEPLOY_GAS_ANDA_DISINI") {
         fetch(GAS_URL, {
           method: 'POST', 
@@ -1257,7 +1277,6 @@
       document.getElementById('result-screen').classList.add('hidden');
       document.getElementById('admin-dashboard').classList.add('hidden');
       document.getElementById('exam-screen').classList.add('hidden');
-      document.getElementById('exam-timer-badge').classList.add('hidden');
       document.getElementById('btn-toggle-admin').classList.remove('hidden');
       document.getElementById('login-screen').classList.remove('hidden');
     }
@@ -1292,23 +1311,33 @@
       if (fKelas) db = db.filter(r => r.kelas === fKelas);
       if (fMapel) db = db.filter(r => r.mapel === fMapel);
 
+      // Sort Descending by score to compute Rank
+      db.sort((a, b) => b.nilai - a.nilai);
+
       document.getElementById('stat-peserta').innerText = db.length;
-      const avg = db.length ? (db.reduce((a, b) => a + b.nilai, 0) / db.length).toFixed(1) : '0.0';
-      const maxVal = db.length ? Math.max(...db.map(r => r.nilai)) : 0;
+      const avg = db.length ? (db.reduce((a, b) => a + Number(b.nilai), 0) / db.length).toFixed(2) : '0.00';
+      const maxVal = db.length ? Math.max(...db.map(r => Number(r.nilai))).toFixed(2) : '0.00';
       document.getElementById('stat-rata').innerText = avg;
       document.getElementById('stat-max').innerText = maxVal;
 
       const tbody = document.getElementById('table-body-rekap');
-      tbody.innerHTML = db.map(r => `
-        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-          <td class="p-3 text-slate-500 font-mono">${r.waktu}</td>
-          <td class="p-3 font-bold">${r.nisn}</td>
-          <td class="p-3 font-bold text-slate-800">${r.nama}</td>
-          <td class="p-3 text-slate-600">${r.kelas} - ${r.mapel}</td>
-          <td class="p-3 text-center font-bold">${r.benar}</td>
-          <td class="p-3 text-center"><span class="px-2.5 py-1 rounded-full font-black text-xs ${r.nilai >= 75 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${r.nilai}</span></td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = db.map((r, idx) => {
+        const scoreVal = Number(r.nilai).toFixed(2);
+        const wrongVal = r.salah !== undefined ? r.salah : (30 - (r.benar || 0));
+        const rankBadge = idx === 0 ? 'bg-amber-100 text-amber-900 border-amber-300 font-black' : (idx === 1 ? 'bg-slate-200 text-slate-800' : (idx === 2 ? 'bg-amber-50 text-amber-800' : 'bg-slate-100 text-slate-600'));
+        return `
+          <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="p-3 text-center"><span class="px-2.5 py-1 rounded-lg border text-xs ${rankBadge}">#${idx + 1}</span></td>
+            <td class="p-3 text-slate-500 font-mono">${r.waktu}</td>
+            <td class="p-3 font-bold">${r.nisn}</td>
+            <td class="p-3 font-bold text-slate-800">${r.nama}</td>
+            <td class="p-3 text-slate-600">${r.kelas} - ${r.mapel}</td>
+            <td class="p-3 text-center font-bold text-emerald-700">${r.benar}</td>
+            <td class="p-3 text-center font-bold text-rose-600">${wrongVal}</td>
+            <td class="p-3 text-center"><span class="px-2.5 py-1 rounded-full font-black text-xs ${r.nilai >= 75 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${scoreVal}</span></td>
+          </tr>
+        `;
+      }).join('');
     }
 
     function openPreviewLaporanPDF() {
@@ -1318,6 +1347,9 @@
 
       if (fKelas) db = db.filter(r => r.kelas === fKelas);
       if (fMapel) db = db.filter(r => r.mapel === fMapel);
+
+      // Sort Descending by score to compute Rank
+      db.sort((a, b) => b.nilai - a.nilai);
 
       const schoolName = localStorage.getItem('cbt_school_name') || 'SMKS SANJAYA BAJAWA';
       const logoData = localStorage.getItem('cbt_school_logo');
@@ -1340,16 +1372,21 @@
       document.getElementById('pdf-panitia-nip').innerText = nip ? `NIP. ${nip}` : '';
 
       const tbody = document.getElementById('pdf-table-body');
-      tbody.innerHTML = db.map((r, i) => `
-        <tr>
-          <td class="p-2 border border-slate-900 text-center">${i + 1}</td>
-          <td class="p-2 border border-slate-900 font-mono">${r.nisn}</td>
-          <td class="p-2 border border-slate-900 font-bold">${r.nama}</td>
-          <td class="p-2 border border-slate-900">${r.kelas} - ${r.mapel}</td>
-          <td class="p-2 border border-slate-900 text-center">${r.benar}</td>
-          <td class="p-2 border border-slate-900 text-center font-bold">${r.nilai}</td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = db.map((r, i) => {
+        const wrongVal = r.salah !== undefined ? r.salah : (30 - (r.benar || 0));
+        const scoreVal = Number(r.nilai).toFixed(2);
+        return `
+          <tr>
+            <td class="p-2 border border-slate-900 text-center font-bold">#${i + 1}</td>
+            <td class="p-2 border border-slate-900 font-mono">${r.nisn}</td>
+            <td class="p-2 border border-slate-900 font-bold">${r.nama}</td>
+            <td class="p-2 border border-slate-900">${r.kelas} - ${r.mapel}</td>
+            <td class="p-2 border border-slate-900 text-center font-bold text-emerald-800">${r.benar}</td>
+            <td class="p-2 border border-slate-900 text-center font-bold text-rose-800">${wrongVal}</td>
+            <td class="p-2 border border-slate-900 text-center font-black">${scoreVal}</td>
+          </tr>
+        `;
+      }).join('');
 
       document.getElementById('modal-pdf-laporan').classList.remove('hidden');
     }
@@ -1361,7 +1398,20 @@
     function exportExcel() {
       const db = JSON.parse(localStorage.getItem('cbt_results_db') || '[]');
       if (db.length === 0) { showToast('Data hasil ujian kosong!', 'error'); return; }
-      const ws = XLSX.utils.json_to_sheet(db);
+      
+      const formattedData = db.map((r, idx) => ({
+        "Peringkat": idx + 1,
+        "Timestamp": r.waktu,
+        "NISN": r.nisn,
+        "Nama Siswa": r.nama,
+        "Kelas": r.kelas,
+        "Mata Pelajaran": r.mapel,
+        "Jumlah Benar": r.benar,
+        "Jumlah Salah": r.salah !== undefined ? r.salah : (30 - r.benar),
+        "Nilai Akhir": Number(r.nilai).toFixed(2)
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(formattedData);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Hasil Ujian");
       XLSX.writeFile(wb, "Rekap_Nilai_CBT_AKM.xlsx");
@@ -1371,8 +1421,11 @@
     function exportCSV() {
       const db = JSON.parse(localStorage.getItem('cbt_results_db') || '[]');
       if (db.length === 0) { showToast('Data hasil ujian kosong!', 'error'); return; }
-      let csv = "Timestamp,NISN,Nama Siswa,Kelas,Mapel,Jumlah Benar,Nilai\n";
-      db.forEach(r => { csv += `"${r.waktu}","${r.nisn}","${r.nama}","${r.kelas}","${r.mapel}",${r.benar},${r.nilai}\n`; });
+      let csv = "Peringkat,Timestamp,NISN,Nama Siswa,Kelas,Mapel,Jumlah Benar,Jumlah Salah,Nilai Akhir\n";
+      db.forEach((r, idx) => { 
+        const wrongVal = r.salah !== undefined ? r.salah : (30 - r.benar);
+        csv += `"#${idx + 1}","${r.waktu}","${r.nisn}","${r.nama}","${r.kelas}","${r.mapel}",${r.benar},${wrongVal},${Number(r.nilai).toFixed(2)}\n`; 
+      });
       const blob = new Blob([csv], { type: 'text/csv' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -1395,7 +1448,6 @@
         const questions = create30HOTSQuestions(materi, tp);
         let packages = JSON.parse(localStorage.getItem('cbt_question_packages') || '[]');
         
-        // Deactivate existing for same class/mapel
         packages.forEach(p => { if (p.kelas === kelas && p.mapel === mapel) p.active = false; });
 
         packages.push({
@@ -1539,7 +1591,6 @@
       localStorage.setItem('cbt_token', val);
       localStorage.setItem('cbt_duration', durasi);
 
-      // Sinkronisasi otomatis ke Google Spreadsheet via GAS_URL
       if (GAS_URL && GAS_URL !== "" && GAS_URL !== "URL_DEPLOY_GAS_ANDA_DISINI") {
         fetch(GAS_URL, {
           method: 'POST',
@@ -1553,6 +1604,45 @@
           .catch(() => showToast('Token disimpan secara lokal', 'info'));
       } else {
         showToast('Token Ujian Berhasil Diperbarui secara lokal!', 'success');
+      }
+    }
+
+    function syncMasterSiswaToGAS() {
+      const list = JSON.parse(localStorage.getItem('cbt_master_siswa') || '[]');
+      if (GAS_URL && GAS_URL !== "" && GAS_URL !== "URL_DEPLOY_GAS_ANDA_DISINI") {
+        fetch(GAS_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'simpanMasterSiswa', payload: { siswaList: list } })
+        }).then(() => showToast('Master Siswa disinkron ke Spreadsheet!', 'success'))
+          .catch(err => console.error(err));
+      }
+    }
+
+    function syncMasterKelasToGAS() {
+      const list = JSON.parse(localStorage.getItem('cbt_master_kelas') || '[]');
+      if (GAS_URL && GAS_URL !== "" && GAS_URL !== "URL_DEPLOY_GAS_ANDA_DISINI") {
+        fetch(GAS_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'simpanMasterKelas', payload: { kelasList: list } })
+        }).then(() => showToast('Master Kelas disinkron ke Spreadsheet!', 'success'))
+          .catch(err => console.error(err));
+      }
+    }
+
+    function syncMasterMapelToGAS() {
+      const list = JSON.parse(localStorage.getItem('cbt_master_mapel') || '[]');
+      if (GAS_URL && GAS_URL !== "" && GAS_URL !== "URL_DEPLOY_GAS_ANDA_DISINI") {
+        fetch(GAS_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'simpanMasterMapel', payload: { mapelList: list } })
+        }).then(() => showToast('Master Mapel disinkron ke Spreadsheet!', 'success'))
+          .catch(err => console.error(err));
       }
     }
 
@@ -1575,6 +1665,7 @@
         list.push({ nisn, nama, kelas });
         localStorage.setItem('cbt_master_siswa', JSON.stringify(list));
         renderMasterSiswa();
+        syncMasterSiswaToGAS();
         showToast('Siswa berhasil ditambahkan!', 'success');
       }
     }
@@ -1584,6 +1675,7 @@
       list.splice(idx, 1);
       localStorage.setItem('cbt_master_siswa', JSON.stringify(list));
       renderMasterSiswa();
+      syncMasterSiswaToGAS();
     }
 
     function renderMasterKelas() {
@@ -1604,6 +1696,7 @@
         localStorage.setItem('cbt_master_kelas', JSON.stringify(list));
         populateMasterDropdowns();
         renderMasterKelas();
+        syncMasterKelasToGAS();
       }
     }
 
@@ -1613,6 +1706,7 @@
       localStorage.setItem('cbt_master_kelas', JSON.stringify(list));
       populateMasterDropdowns();
       renderMasterKelas();
+      syncMasterKelasToGAS();
     }
 
     function renderMasterMapel() {
@@ -1633,6 +1727,7 @@
         localStorage.setItem('cbt_master_mapel', JSON.stringify(list));
         populateMasterDropdowns();
         renderMasterMapel();
+        syncMasterMapelToGAS();
       }
     }
 
@@ -1642,6 +1737,7 @@
       localStorage.setItem('cbt_master_mapel', JSON.stringify(list));
       populateMasterDropdowns();
       renderMasterMapel();
+      syncMasterMapelToGAS();
     }
 
     function saveGASUrl() {
