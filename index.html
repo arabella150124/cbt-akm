@@ -681,7 +681,15 @@
     /* =======================================================================
        GLOBAL STATE VARIABLES & CONFIG
        ======================================================================= */
-    let GAS_URL = localStorage.getItem('cbt_gas_url') || "";
+    // KONFIGURASI UTAMA BACKEND GOOGLE APPS SCRIPT (GAS)
+    const IS_PREVIEW = false;
+    // PASTE / TEMPELKAN URL DEPLOYMENT WEB APP GAS ANDA DI BAWAH INI:
+    const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbx31WGmxntBk37uva_JiGNAAhmSoxMoleM5y31YU6fdexLXSOEASSKJBNMnJccSN4yuLQ/exec"; 
+    
+    let GAS_URL = (localStorage.getItem('cbt_gas_url') && localStorage.getItem('cbt_gas_url') !== "") 
+                  ? localStorage.getItem('cbt_gas_url') 
+                  : DEFAULT_GAS_URL;
+
     let currentUser = null;
     let userAnswers = {};
     let raguAnswers = {};
@@ -804,6 +812,10 @@
       if(idKota) idKota.value = localStorage.getItem('cbt_school_kota') || 'Bajawa';
       if(idPanitia) idPanitia.value = localStorage.getItem('cbt_school_panitia') || 'YUSTINUS BARA, S.Pd';
       if(idNip) idNip.value = localStorage.getItem('cbt_school_nip') || '19850412 201001 1 008';
+
+      // Load GAS URL Input
+      const gasInput = document.getElementById('konfig-gas-url');
+      if (gasInput) gasInput.value = GAS_URL;
     }
 
     function saveIdentitasSekolah(e) {
@@ -1156,11 +1168,15 @@
       localStorage.setItem('cbt_results_db', JSON.stringify(db));
 
       // Post to GAS Backend if URL configured
-      if (GAS_URL) {
+      if (GAS_URL && GAS_URL !== "" && GAS_URL !== "URL_DEPLOY_GAS_ANDA_DISINI") {
         fetch(GAS_URL, {
-          method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+          method: 'POST', 
+          mode: 'no-cors', 
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'simpanHasil', payload: record })
-        }).catch(() => {});
+        })
+        .then(() => showToast('Hasil ujian berhasil dikirim ke Spreadsheet!', 'success'))
+        .catch(() => showToast('Gagal mengirim data ke GAS', 'error'));
       }
     }
 
