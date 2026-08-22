@@ -698,8 +698,16 @@
     let timerSeconds = 3600;
     let activePackageQuestions = [];
     
-    // MJD Interactive Matching Line Variables
+    // MJD Interactive Matching Line Variables & Distinct Color Palettes
     let selectedMjdLeft = null;
+    const MJD_PAIR_COLORS = [
+      { bg: 'bg-indigo-50', border: 'border-indigo-500', text: 'text-indigo-900', stroke: '#4f46e5', badge: 'bg-indigo-600', ring: 'ring-indigo-300' },
+      { bg: 'bg-emerald-50', border: 'border-emerald-500', text: 'text-emerald-900', stroke: '#10b981', badge: 'bg-emerald-600', ring: 'ring-emerald-300' },
+      { bg: 'bg-amber-50', border: 'border-amber-500', text: 'text-amber-900', stroke: '#f59e0b', badge: 'bg-amber-600', ring: 'ring-amber-300' },
+      { bg: 'bg-purple-50', border: 'border-purple-500', text: 'text-purple-900', stroke: '#9333ea', badge: 'bg-purple-600', ring: 'ring-purple-300' },
+      { bg: 'bg-rose-50', border: 'border-rose-500', text: 'text-rose-900', stroke: '#f43f5e', badge: 'bg-rose-600', ring: 'ring-rose-300' },
+      { bg: 'bg-teal-50', border: 'border-teal-500', text: 'text-teal-900', stroke: '#0d9488', badge: 'bg-teal-600', ring: 'ring-teal-300' }
+    ];
 
     /* Master Data Repositories in LocalStorage */
     const defaultSiswa = [
@@ -1034,13 +1042,38 @@
       const container = document.getElementById('options-container');
       const cAns = userAnswers[q.id] || {};
 
+      // Map right items to which left item matched them
+      const rightToLeftMap = {};
+      Object.keys(cAns).forEach(lIdx => {
+        const rIdx = cAns[lIdx];
+        if (rIdx !== undefined && rIdx !== null) {
+          rightToLeftMap[rIdx] = parseInt(lIdx, 10);
+        }
+      });
+
       let html = `<div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative" id="mjd-board">`;
       
       // Left Column Items
       html += `<div class="space-y-3">`;
       q.leftItems.forEach((lItem, lIdx) => {
+        const isSelected = selectedMjdLeft === lIdx;
         const isMatched = cAns[lIdx] !== undefined;
-        html += `<div id="mjd-left-${lIdx}" onclick="selectMjdLeft(${q.id}, ${lIdx})" class="p-3 rounded-xl border-2 cursor-pointer transition font-bold text-xs flex justify-between items-center ${selectedMjdLeft===lIdx ? 'border-amber-500 bg-amber-50 ring-2 ring-amber-300' : (isMatched ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white hover:border-slate-300')}"><span>${lItem}</span>${isMatched ? `<span class="w-5 h-5 bg-emerald-600 text-white rounded-full flex items-center justify-center text-[10px]"><i class="fa-solid fa-check"></i></span>`:''}`;
+        const theme = MJD_PAIR_COLORS[lIdx % MJD_PAIR_COLORS.length];
+
+        let styleClasses = 'border-slate-200 bg-white hover:border-slate-300 text-slate-800';
+        if (isSelected) {
+          styleClasses = 'border-amber-500 bg-amber-50 ring-2 ring-amber-400 text-amber-900';
+        } else if (isMatched) {
+          styleClasses = `${theme.border} ${theme.bg} ${theme.text}`;
+        }
+
+        html += `<div id="mjd-left-${lIdx}" onclick="selectMjdLeft(${q.id}, ${lIdx})" class="p-3.5 rounded-xl border-2 cursor-pointer transition-all font-bold text-xs flex justify-between items-center shadow-sm ${styleClasses}">`;
+        html += `<span class="flex items-center gap-2"><span class="w-5 h-5 rounded-md ${isMatched ? theme.badge : 'bg-slate-200 text-slate-600'} text-white text-[10px] flex items-center justify-center font-mono">${lIdx + 1}</span> ${lItem}</span>`;
+        if (isMatched) {
+          html += `<span class="${theme.badge} text-white px-2 py-0.5 rounded-md text-[10px] font-black flex items-center gap-1"><i class="fa-solid fa-check"></i> Terhubung</span>`;
+        } else if (isSelected) {
+          html += `<span class="bg-amber-500 text-white px-2 py-0.5 rounded-md text-[10px] font-black animate-pulse">Pilih Kanan</span>`;
+        }
         html += `</div>`;
       });
       html += `</div>`;
@@ -1048,7 +1081,21 @@
       // Right Column Items
       html += `<div class="space-y-3">`;
       q.rightItems.forEach((rItem, rIdx) => {
-        html += `<div id="mjd-right-${rIdx}" onclick="selectMjdRight(${q.id}, ${rIdx})" class="p-3 rounded-xl border-2 cursor-pointer transition font-bold text-xs bg-white border-slate-200 hover:border-slate-300"><span>${rItem}</span></div>`;
+        const matchedLIdx = rightToLeftMap[rIdx];
+        const isMatched = matchedLIdx !== undefined;
+        const theme = isMatched ? MJD_PAIR_COLORS[matchedLIdx % MJD_PAIR_COLORS.length] : null;
+
+        let styleClasses = 'border-slate-200 bg-white hover:border-slate-300 text-slate-800';
+        if (isMatched) {
+          styleClasses = `${theme.border} ${theme.bg} ${theme.text}`;
+        }
+
+        html += `<div id="mjd-right-${rIdx}" onclick="selectMjdRight(${q.id}, ${rIdx})" class="p-3.5 rounded-xl border-2 cursor-pointer transition-all font-bold text-xs flex justify-between items-center shadow-sm ${styleClasses}">`;
+        html += `<span>${rItem}</span>`;
+        if (isMatched) {
+          html += `<span class="${theme.badge} text-white px-2 py-0.5 rounded-md text-[10px] font-black flex items-center gap-1"><i class="fa-solid fa-link"></i> Opsi ${matchedLIdx + 1}</span>`;
+        }
+        html += `</div>`;
       });
       html += `</div></div>`;
 
@@ -1068,6 +1115,12 @@
         return;
       }
       if (!userAnswers[qId]) userAnswers[qId] = {};
+      
+      // Clear previous match if right item was already matched
+      Object.keys(userAnswers[qId]).forEach(k => {
+        if (userAnswers[qId][k] === rIdx) delete userAnswers[qId][k];
+      });
+
       userAnswers[qId][selectedMjdLeft] = rIdx;
       selectedMjdLeft = null;
 
@@ -1090,7 +1143,8 @@
       const boardRect = board.getBoundingClientRect();
       const cAns = userAnswers[q.id] || {};
 
-      Object.keys(cAns).forEach(lIdx => {
+      Object.keys(cAns).forEach(lIdxStr => {
+        const lIdx = parseInt(lIdxStr, 10);
         const rIdx = cAns[lIdx];
         const leftEl = document.getElementById(`mjd-left-${lIdx}`);
         const rightEl = document.getElementById(`mjd-right-${rIdx}`);
@@ -1104,14 +1158,17 @@
           const x2 = rRect.left - boardRect.left;
           const y2 = rRect.top + rRect.height / 2 - boardRect.top;
 
+          const theme = MJD_PAIR_COLORS[lIdx % MJD_PAIR_COLORS.length];
+
           const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
           line.setAttribute('x1', x1);
           line.setAttribute('y1', y1);
           line.setAttribute('x2', x2);
           line.setAttribute('y2', y2);
-          line.setAttribute('stroke', '#059669');
-          line.setAttribute('stroke-width', '3');
-          line.setAttribute('stroke-dasharray', '5,5');
+          line.setAttribute('stroke', theme.stroke);
+          line.setAttribute('stroke-width', '3.5');
+          line.setAttribute('stroke-dasharray', '6,4');
+          line.setAttribute('stroke-linecap', 'round');
           svg.appendChild(line);
         }
       });
