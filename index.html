@@ -173,13 +173,13 @@
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Kelas:</label>
                 <select id="siswa-kelas" required class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-sm focus:ring-2 focus:ring-pusmendik-500 outline-none">
-                  <!-- Populated dynamically from Master Kelas -->
+                  <!-- Populated dynamically -->
                 </select>
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran:</label>
                 <select id="siswa-mapel" required class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-sm focus:ring-2 focus:ring-pusmendik-500 outline-none">
-                  <!-- Populated dynamically from Master Mapel -->
+                  <!-- Populated dynamically -->
                 </select>
               </div>
             </div>
@@ -202,7 +202,7 @@
               <input type="text" id="admin-user" required placeholder="admin" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-sm focus:ring-2 focus:ring-pusmendik-500 outline-none">
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Password Password:</label>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Password:</label>
               <input type="password" id="admin-pass" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-sm focus:ring-2 focus:ring-pusmendik-500 outline-none">
             </div>
             <button type="submit" class="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white font-extrabold rounded-xl shadow-lg transition flex items-center justify-center gap-2 mt-2 text-sm">
@@ -760,9 +760,6 @@
       setTimeout(() => { toast.classList.add('translate-x-10', 'opacity-0'); setTimeout(()=>toast.remove(), 300); }, 3000);
     }
 
-    /* =======================================================================
-       MASTER DATA & IDENTITAS DROPDOWNS
-       ======================================================================= */
     function populateMasterDropdowns() {
       const kelasList = JSON.parse(localStorage.getItem('cbt_master_kelas') || '[]');
       const mapelList = JSON.parse(localStorage.getItem('cbt_master_mapel') || '[]');
@@ -820,13 +817,34 @@
 
     function saveIdentitasSekolah(e) {
       e.preventDefault();
-      localStorage.setItem('cbt_school_name', document.getElementById('identitas-nama').value);
-      localStorage.setItem('cbt_school_npsn', document.getElementById('identitas-npsn').value);
-      localStorage.setItem('cbt_school_kota', document.getElementById('identitas-kota').value);
-      localStorage.setItem('cbt_school_panitia', document.getElementById('identitas-panitia').value);
-      localStorage.setItem('cbt_school_nip', document.getElementById('identitas-nip').value);
+      const nama = document.getElementById('identitas-nama').value;
+      const npsn = document.getElementById('identitas-npsn').value;
+      const kota = document.getElementById('identitas-kota').value;
+      const panitia = document.getElementById('identitas-panitia').value;
+      const nip = document.getElementById('identitas-nip').value;
+
+      localStorage.setItem('cbt_school_name', nama);
+      localStorage.setItem('cbt_school_npsn', npsn);
+      localStorage.setItem('cbt_school_kota', kota);
+      localStorage.setItem('cbt_school_panitia', panitia);
+      localStorage.setItem('cbt_school_nip', nip);
       loadSchoolIdentity();
-      showToast('Identitas Sekolah berhasil disimpan!', 'success');
+
+      // Sinkronisasi otomatis ke Google Spreadsheet via GAS_URL
+      if (GAS_URL && GAS_URL !== "" && GAS_URL !== "URL_DEPLOY_GAS_ANDA_DISINI") {
+        fetch(GAS_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'simpanIdentitas',
+            payload: { nama, npsn, kota, panitia, nip }
+          })
+        }).then(() => showToast('Identitas disimpan & disinkron ke Spreadsheet!', 'success'))
+          .catch(() => showToast('Identitas disimpan secara lokal', 'info'));
+      } else {
+        showToast('Identitas Sekolah berhasil disimpan secara lokal!', 'success');
+      }
     }
 
     function previewLogoUpload(e) {
@@ -842,9 +860,6 @@
       }
     }
 
-    /* =======================================================================
-       LOGIN & SESSION LOGIC
-       ======================================================================= */
     function toggleAdminLogin() {
       const siswaForm = document.getElementById('form-login-siswa');
       const adminForm = document.getElementById('form-login-admin');
@@ -918,9 +933,6 @@
       }
     }
 
-    /* =======================================================================
-       EXAM TIMER & NAVIGATION LOGIC
-       ======================================================================= */
     function startTimer() {
       const duration = parseInt(localStorage.getItem('cbt_duration') || '60');
       timerSeconds = duration * 60;
@@ -1018,7 +1030,6 @@
     function savePGK(id, v) { if(!userAnswers[id]) userAnswers[id]=[]; const i = userAnswers[id].indexOf(v); if(i>-1) userAnswers[id].splice(i,1); else userAnswers[id].push(v); renderPalette(); }
     function saveBS(id, sIdx, v) { if(!userAnswers[id]) userAnswers[id]={}; userAnswers[id][sIdx]=v; renderPalette(); }
 
-    /* Interactive MJD Matcher with SVG Lines */
     function renderMJDInteractive(q) {
       const container = document.getElementById('options-container');
       const cAns = userAnswers[q.id] || {};
@@ -1119,7 +1130,6 @@
       document.getElementById('modal-confirm').classList.add('hidden');
     }
 
-    /* Process Submit & Auto Grading */
     function processSubmit() {
       closeConfirmModal();
       clearInterval(timerInterval);
@@ -1155,7 +1165,7 @@
       document.getElementById('result-score').innerText = finalScore;
       document.getElementById('result-detail').innerText = `Jawaban Benar: ${correct} dari ${activePackageQuestions.length} Soal`;
 
-      // Record Result
+      // Record Result Local
       const record = {
         waktu: new Date().toLocaleString('id-ID'),
         ...currentUser,
@@ -1167,7 +1177,7 @@
       db.push(record);
       localStorage.setItem('cbt_results_db', JSON.stringify(db));
 
-      // Post to GAS Backend if URL configured
+      // Post to GAS Backend
       if (GAS_URL && GAS_URL !== "" && GAS_URL !== "URL_DEPLOY_GAS_ANDA_DISINI") {
         fetch(GAS_URL, {
           method: 'POST', 
@@ -1195,9 +1205,6 @@
       document.getElementById('login-screen').classList.remove('hidden');
     }
 
-    /* =======================================================================
-       ADMIN DASHBOARD LOGIC
-       ======================================================================= */
     function switchAdminTab(tabId) {
       document.querySelectorAll('.admin-tab').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.admin-nav-btn').forEach(el => {
@@ -1247,7 +1254,6 @@
       `).join('');
     }
 
-    /* PDF Report Preview Modal Renderer */
     function openPreviewLaporanPDF() {
       const fKelas = document.getElementById('filter-kelas')?.value || '';
       const fMapel = document.getElementById('filter-mapel')?.value || '';
@@ -1318,7 +1324,6 @@
       showToast('File CSV berhasil diunduh!', 'success');
     }
 
-    /* AI HOTS Question Generator */
     function generateSoalAI(e) {
       e.preventDefault();
       const kelas = document.getElementById('ai-target-kelas').value;
@@ -1473,11 +1478,27 @@
 
     function saveTokenSetting() {
       const val = document.getElementById('setting-token').value.toUpperCase().trim();
+      const durasi = document.getElementById('setting-waktu').value;
       localStorage.setItem('cbt_token', val);
-      showToast('Token Ujian Berhasil Diperbarui!', 'success');
+      localStorage.setItem('cbt_duration', durasi);
+
+      // Sinkronisasi otomatis ke Google Spreadsheet via GAS_URL
+      if (GAS_URL && GAS_URL !== "" && GAS_URL !== "URL_DEPLOY_GAS_ANDA_DISINI") {
+        fetch(GAS_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'simpanKonfigurasi',
+            payload: { token: val, durasi: durasi }
+          })
+        }).then(() => showToast('Token & Durasi disimpan ke Spreadsheet!', 'success'))
+          .catch(() => showToast('Token disimpan secara lokal', 'info'));
+      } else {
+        showToast('Token Ujian Berhasil Diperbarui secara lokal!', 'success');
+      }
     }
 
-    /* CRUD Master Data Siswa, Kelas, Mapel */
     function renderMasterSiswa() {
       const list = JSON.parse(localStorage.getItem('cbt_master_siswa') || '[]');
       document.getElementById('table-master-siswa').innerHTML = list.map((s, idx) => `
