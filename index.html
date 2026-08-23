@@ -89,7 +89,7 @@
 
   <script>
     // URL Web App GAS Deploy Anda
-    let GAS_URL = "https://script.google.com/macros/s/AKfycbzvILA-uZH5_PUMZjJABJaABSv9FfUf2MV_4Tkf-sAOiVhZ9UZbLQBKId8wWKtkrsZcyQ/exec";
+    let GAS_URL = "https://script.google.com/macros/s/AKfycbxdxQLg5DFM9l_UYFYyiv55PUYnTJ9GMtBulz_WcJ4k_-_EpT1i_dMEjlj5_SBUheTPfw/exec";
 
     // Load saved URL from LocalStorage if available
     const savedUrl = localStorage.getItem('cbt_gas_url');
@@ -104,7 +104,7 @@
 
       if (statusText) statusText.innerText = "Memuat aplikasi...";
 
-      const isDefaultUrl = !GAS_URL || GAS_URL.includes("https://script.google.com/macros/s/AKfycbzzZ7qWXOYO7DIxf3Rcr2b6TTgk0hiP3FQPSI3Cg020mbhTuZoEHox3qWMIRx3zTK7yqg/exec") || GAS_URL.trim() === "";
+      const isDefaultUrl = !GAS_URL || GAS_URL.includes("https://script.google.com/macros/s/AKfycbxdxQLg5DFM9l_UYFYyiv55PUYnTJ9GMtBulz_WcJ4k_-_EpT1i_dMEjlj5_SBUheTPfw/exec") || GAS_URL.trim() === "";
 
       if (!isDefaultUrl) {
         // Append cache buster parameter to ensure fresh load
