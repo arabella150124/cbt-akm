@@ -1,46 +1,147 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="w-full h-full">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>UJIAN ONLINE CBT AKM</title>
-  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg"/>
-  <!--<link rel="icon" href="https://iili.io/qFFDPUP.jpg" />-->
-    <style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>UJIAN ONLINE CBT-AKM</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+    
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
-      background-color: #eee;
-      overflow: hidden; /* Mencegah scroll ganda */
+      overflow: hidden;
+      background-color: #0f172a;
+      font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
     .iframe-container {
       width: 100%;
-      height: 100dvh; /* Menggunakan dvh agar pas di mobile browser */
-      overflow: hidden;
-    }
-
-    iframe {
-      display: block;
-      width: 100%;
       height: 100%;
       border: none;
+      display: block;
+    }
+
+    /* Pulsing animation for logo */
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.05); opacity: 1; }
+    }
+
+    .pulse-logo {
+      animation: pulseGlow 2s infinite ease-in-out;
     }
   </style>
 </head>
-<body>
-  <div class="iframe-container">
-    <iframe
-      id="app"
-      src="https://script.google.com/macros/s/AKfycbzLXXnOeT_xITTyUYrp-n2Fsa4hmBeB2iajON44f-07Hli9V2IHu-jvV_m3bIDmBOfMyA/exec"
-      scrolling="yes"
-      allowfullscreen="true"
-      webkitallowfullscreen="true"
-      mozallowfullscreen="true"
-      allow="fullscreen; camera; microphone; display-capture; geolocation;">
-    </iframe>
+<body class="w-full h-full relative bg-slate-900 text-slate-100 flex flex-col justify-between">
+
+  <!-- LOADING OVERLAY SCREEN -->
+  <div id="loading-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white p-6 transition-opacity duration-500">
+    <div class="text-center space-y-5 max-w-md w-full">
+      <!-- Animated Logo Icon -->
+      <div class="w-20 h-20 mx-auto rounded-3xl bg-blue-600/20 border border-blue-400/30 flex items-center justify-center p-3 shadow-2xl backdrop-blur-md pulse-logo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg" alt="Logo Kemdikbud" class="max-h-full max-w-full object-contain">
+      </div>
+
+      <!-- Title & Subtitle -->
+      <div class="space-y-1">
+        <h1 class="text-xl font-black tracking-wider uppercase text-white">UJIAN ONLINE CBT-AKM</h1>
+        <p class="text-xs text-blue-300 font-medium">Memuat Sistem Ujian & menunggu...</p>
+      </div>
+
+      <!-- Spinner Indicator -->
+      <div class="flex items-center justify-center gap-2 pt-2">
+        <div class="w-3 h-3 bg-amber-400 rounded-full animate-ping"></div>
+        <div class="w-3 h-3 bg-blue-500 rounded-full animate-ping [animation-delay:0.2s]"></div>
+        <div class="w-3 h-3 bg-indigo-500 rounded-full animate-ping [animation-delay:0.4s]"></div>
+      </div>
+
+      <!-- Status Info -->
+      <div id="status-text" class="text-[11px] text-slate-400 font-mono pt-4 border-t border-white/10">
+        Menghubungkan ke Google Apps Script...
+      </div>
+
+      <!-- Fallback Prompt if GAS_URL is not configured -->
+      <div id="setup-prompt" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-left text-xs space-y-2">
+        <p class="font-bold text-amber-300 flex items-center gap-2">
+          <i class="fa-solid fa-triangle-exclamation"></i> URL Web App Belum Diatur!
+        </p>
+        <p class="text-slate-300 leading-relaxed">
+          Silakan buka file <code class="bg-black/40 px-1.5 py-0.5 rounded text-amber-200">index.html</code> ini di editor GitHub Anda, lalu ganti nilai variabel <code class="bg-black/40 px-1.5 py-0.5 rounded text-amber-200">GAS_URL</code> dengan URL Deploy Web App Anda dari Google Apps Script.
+        </p>
+      </div>
+    </div>
   </div>
+
+  <!-- FULLSCREEN IFRAME CONTAINER -->
+  <iframe 
+    id="cbt-frame" 
+    class="iframe-container"
+    allow="autoplay; camera; microphone; geolocation; clipboard-read; clipboard-write; display-capture" 
+    sandbox="allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation"
+    title="CBT AKM Pro Application">
+  </iframe>
+
+  <script>
+    // =========================================================================
+    // KONFIGURASI URL DEPLOY GOOGLE APPS SCRIPT (GAS)
+    // Ubah URL di bawah ini dengan URL Web App hasil Deploy Google Apps Script Anda
+    // Contoh: "https://script.google.com/macros/s/AKfycbxXXXXXXXXXXXXX/exec"
+    // =========================================================================
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzLXXnOeT_xITTyUYrp-n2Fsa4hmBeB2iajON44f-07Hli9V2IHu-jvV_m3bIDmBOfMyA/exec";
+
+    const frame = document.getElementById('cbt-frame');
+    const loader = document.getElementById('loading-overlay');
+    const statusText = document.getElementById('status-text');
+    const setupPrompt = document.getElementById('setup-prompt');
+
+    window.onload = function() {
+      // Check if user has replaced the default placeholder
+      if (!GAS_URL || GAS_URL.includes("URL_DEPLOY_GAS_ANDA_DISINI")) {
+        statusText.innerText = "Konfigurasi Diperlukan!";
+        setupPrompt.classList.remove('hidden');
+        return;
+      }
+
+      // Append cache buster parameter to ensure fresh load
+      const targetUrl = GAS_URL + (GAS_URL.includes('?') ? '&' : '?') + 'redirect_source=github_pages&v=' + Date.now();
+      
+      statusText.innerText = "Memuat antarmuka aplikasi...";
+      frame.src = targetUrl;
+
+      // Detect iframe load complete
+      frame.onload = function() {
+        statusText.innerText = "Aplikasi Siap!";
+        setTimeout(() => {
+          loader.classList.add('opacity-0', 'pointer-events-none');
+          setTimeout(() => {
+            loader.style.display = 'none';
+          }, 500);
+        }, 300);
+      };
+
+      // Fallback timeout in case iframe loading takes longer than usual
+      setTimeout(() => {
+        if (loader.style.display !== 'none' && !GAS_URL.includes("URL_DEPLOY_GAS_ANDA_DISINI")) {
+          statusText.innerText = "Menghubungkan aplikasi...";
+          loader.classList.add('opacity-0', 'pointer-events-none');
+          setTimeout(() => { loader.style.display = 'none'; }, 500);
+        }
+      }, 5000);
+    };
+  </script>
 </body>
 </html>
